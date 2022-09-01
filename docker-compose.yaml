@@ -10,11 +10,10 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 3s
-      timeout: 30s
-      retries: 3
+      retries: 5
 
   db-init:
-    image: python:3.9
+    image: python:3.9-slim
     env_file: vars.env
     volumes:
       - ./sources/b2b/:/b2b
@@ -27,3 +26,15 @@ services:
     depends_on:
       database:
         condition: service_healthy
+
+  weblog:
+    image: python:3.9-slim
+    volumes:
+      - ./sources/weblog/script:/script
+      - ~/apache-logs:/logs
+    entrypoint:
+      - bash
+      - -xc
+      - |-
+        pip install -r /script/requirements.txt
+        python /script/generate_traces.py
