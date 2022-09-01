@@ -32,7 +32,7 @@ def create_table(cursor, model: str):
     with open(path) as f:
         create_ddl = f.read()
 
-    log.warning(f"Running create query:\n{create_ddl}")
+    #log.warning(f"Running create query:\n{create_ddl}")
     cursor.execute(create_ddl)
 
 
@@ -43,9 +43,9 @@ def load_table(cursor, model: str):
         cursor.copy_from(f, model, sep=',')
 
 def sample_table(cursor, model: str):
-    sample_query = f"SELECT * FROM \"{model}\" LIMIT 5;"
+    sample_query = f"SELECT * FROM \"{model}\" LIMIT 2;"
 
-    log.warning(f"Running sample query:\n{sample_query}")
+    #log.warning(f"Running sample query:\n{sample_query}")
     cursor.execute(sample_query)
 
     return [l for l in cursor.fetchall()]
@@ -77,6 +77,7 @@ def seed():
 
     finally:
         conn.close()
+        log.warning("Done")
 
 if __name__ == "__main__":
     seed()
