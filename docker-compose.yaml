@@ -1,40 +1,66 @@
 version: '3'
 services:
   database:
+    container_name: postgres
     image: postgres:14-alpine
-    env_file: vars.env
+    env_file: local.env
     ports:
       - "5432:5432"
     volumes:
       - ~/postgres_data:/var/lib/postgresql/data
+      - ./sources:/sources
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 3s
+      interval: 5s
       retries: 5
 
-  db-init:
+  ip2geo-db-seed:
+    container_name: ip2geo-seed
     image: python:3.9-slim
-    env_file: vars.env
+    env_file: local.env
+    environment:
+      - DATA_PATH=/sources/ip2geo/data
     volumes:
-      - ./sources/b2b/:/b2b
+      - ./scripts/seed-db:/scripts
+      - ./sources/ip2geo/ddl:/ddl
     entrypoint:
       - bash
       - -xc
       - |-
-        pip install -r /b2b/script/requirements.txt
-        python /b2b/script/seed_db.py
+        pip install -r /scripts/requirements.txt &> /dev/null
+        python /scripts/seed_db.py --model "ip2geo"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  b2b-db-seed:
+    container_name: b2b-seed
+    image: python:3.9-slim
+    env_file: local.env
+    environment:
+      - DATA_PATH=/sources/b2b/data
+    volumes:
+      - ./scripts/seed-db:/scripts
+      - ./sources/b2b/ddl:/ddl
+    entrypoint:
+      - bash
+      - -xc
+      - |-
+        pip install -r /scripts/requirements.txt &> /dev/null
+        python /scripts/seed_db.py --model "company,customer,product,order,inventory,sales"
     depends_on:
       database:
         condition: service_healthy
 
   weblog:
+    container_name: weblog
     image: python:3.9-slim
     volumes:
-      - ./sources/weblog/script:/script
+      - ./scripts/weblog:/scripts
       - ~/apache-logs:/logs
     entrypoint:
       - bash
       - -xc
       - |-
-        pip install -r /script/requirements.txt
-        python /script/generate_traces.py
+        pip install -r /scripts/requirements.txt &> /dev/null
+        python /scripts/generate_traces.py
