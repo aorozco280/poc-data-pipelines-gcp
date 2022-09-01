@@ -1,0 +1,30 @@
+version: '3'
+services:
+  database:
+    image: postgres:14-alpine
+    env_file: vars.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ~/postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 3s
+      timeout: 10s
+      retries: 3
+
+  db-init:
+    image: python:3.9
+    env_file: vars.env
+    volumes:
+      - ./script:/script
+      - ./resources:/resources
+    entrypoint:
+      - bash
+      - -xc
+      - |-
+        pip install -r /script/b2b/requirements.txt
+        python /script/b2b/seed_db.py
+    depends_on:
+      database:
+        condition: service_healthy
