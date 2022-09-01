@@ -1,0 +1,9 @@
+cuit,name,is_supplier
+1001,Cheap stuff,false
+2001,Expensive stuff,false
+3001,Crafts,false
+4001,HomeAndOffice Supplier,true
+5001,Computer Supplier,true
+6001,Mattresses Supplier,true
+7001,Musical Instruments Supplier,true
+8001,Local Crafts,true
