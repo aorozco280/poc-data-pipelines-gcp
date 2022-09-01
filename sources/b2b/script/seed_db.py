@@ -25,7 +25,7 @@ def setup_connection():
 
 
 def create_table(cursor, model: str):
-    path = f"/resources/ddl/{model}.sql"
+    path = f"/b2b/ddl/{model}.sql"
     if not path:
         raise Exception(f"Unable to find {path}")
 
@@ -37,7 +37,7 @@ def create_table(cursor, model: str):
 
 
 def load_table(cursor, model: str):
-    path = f"/resources/data/{model}.csv"
+    path = f"/b2b/data/{model}.csv"
     with open(path) as f:
         next(f)
         cursor.copy_from(f, model, sep=',')
