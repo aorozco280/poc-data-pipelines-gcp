@@ -19,7 +19,7 @@ def setup_connection():
         database=db,
         user=user,
         password=psw,
-        host="database",
+        host="app-db",
         port="5432"
     )
     conn.autocommit = True
@@ -43,16 +43,7 @@ def create_table(cursor, model: str):
 def load_table(cursor, model: str):
     path = f"{DATA_PATH}/{model}.csv"
     load_query = f"COPY \"{model}\" FROM '{path}' DELIMITER ',' CSV HEADER;"
-    log.warning(f"Executing [{load_query}]")
     cursor.execute(load_query)
-    #with open(path, newline='') as f:
-    #    reader = csv.reader(f)
-    #    for row in reader:
-    #        x = 1
-    #fmts = ",".join((len(row) * "%s"))
-    #values_str = ",".join(cursor.mogrify("(%s,%s,%s)", i).decode('utf-8'))
-    #cursor.execute(f"INSERT INTO \"{model}\" VALUES")
-    #cursor.copy_from(reader, model, sep=',')
 
 def sample_table(cursor, model: str):
     sample_query = f"SELECT * FROM \"{model}\" LIMIT 2;"
@@ -85,7 +76,6 @@ def seed(args):
 
     finally:
         conn.close()
-        log.warning("Done")
 
 if __name__ == "__main__":
     args = parse_args()
