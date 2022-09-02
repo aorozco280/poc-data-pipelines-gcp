@@ -22,8 +22,9 @@ with DAG(
     models_str = ",".join(models)
 
     cmd = (
-        f"pip install -r /scripts/requirements.txt && "
-        f"python /scripts/seed-db.py --model {models_str}"
+        "cd /app-scripts/seed-db && "
+        f"pip install -r requirements.txt && "
+        f"python seed_db.py --model {models_str}"
     )
 
     create = BashOperator(
@@ -32,8 +33,10 @@ with DAG(
     )
 
     seed = SparkSubmitOperator(
-        task_id="seed",
-        application="path/to/job.py"
+        task_id="load",
+        application="/etls/csv-load/csv_load.py",
+        application_args=["--path", "/data", "--header", "true", "--model", models_str],
+        packages="org.postgresql:postgresql:42.5.0"
     )
 
     end = EmptyOperator(task_id="end")

@@ -68,7 +68,7 @@ def seed(args):
 
         for model in models:
             create_table(cursor, model)
-            load_table(cursor, model)
+            #load_table(cursor, model)
             #sample = sample_table(cursor, model)
             #log.warning(f"Successfully created {model}. Sampled data:\n{sample}")
 
