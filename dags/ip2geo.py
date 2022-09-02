@@ -8,21 +8,21 @@ with DAG(
     "ip2geo-seed",
     schedule_interval="@daily",
     start_date=datetime(2022, 8, 30),
-    catchup=False
+    catchup=False,
 ) as dag:
     cmd = (
-        f"pip install -r /scripts/requirements.txt && "
-        f"python /scripts/seed-db.py --model ip2geo"
+        "cd /app-scripts/seed-db && "
+        f"pip install -r requirements.txt && "
+        f"python seed_db.py --model ip2geo"
     )
 
-    create = BashOperator(
-        task_id="create",
-        bash_command=cmd
-    )
+    create = BashOperator(task_id="create", bash_command=cmd)
 
     seed = SparkSubmitOperator(
-        task_id="seed",
-        application="path/to/job.py"
+        task_id="load",
+        application="/etls/csv-load/csv_load.py",
+        application_args=["--path", "/data", "--header", "true", "--model", "ip2geo"],
+        packages="org.postgresql:postgresql:42.5.0",
     )
 
     end = EmptyOperator(task_id="end")

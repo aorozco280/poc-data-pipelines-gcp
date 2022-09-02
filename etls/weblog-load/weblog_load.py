@@ -9,25 +9,19 @@ from pyspark.sql.types import (
     StructType,
     StructField,
     StringType,
-    TimestampType
+    TimestampType,
 )
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--path",
-        "-p",
-        dest='path',
-        help="The path to the weblog data"
-    )
+    parser.add_argument("--path", "-p", dest="path", help="The path to the weblog data")
     return parser.parse_args()
 
+
 def spark_session():
-    return SparkSession.builder \
-          .master("local[*]") \
-          .appName("weblog-load") \
-          .getOrCreate()
+    return SparkSession.builder.master("local[*]").appName("weblog-load").getOrCreate()
+
 
 def parse_log(log: str):
     from apachelogs import LogParser, COMBINED
@@ -55,6 +49,7 @@ def parse_log(log: str):
         ua_str,
     )
 
+
 def main():
     args = parse_args()
 
@@ -62,33 +57,35 @@ def main():
         raise Exception(f"Error, invalid path {args.path}")
 
     spark = spark_session()
-    schema = StructType([
-        StructField("log", StringType(), False),
-        StructField("host", StringType(), False),
-        StructField("ipnumber", IntegerType(), False),
-        StructField("user", StringType(), True),
-        StructField("date_time", TimestampType(), False),
-        StructField("device_id", StringType(), False),
-    ])
+    schema = StructType(
+        [
+            StructField("log", StringType(), False),
+            StructField("host", StringType(), False),
+            StructField("ipnumber", IntegerType(), False),
+            StructField("user", StringType(), True),
+            StructField("date_time", TimestampType(), False),
+            StructField("device_id", StringType(), False),
+        ]
+    )
 
     parse_log_udf = udf(parse_log, schema)
-    df = spark.read \
-            .text(args.path) \
-            .select(parse_log_udf("value").alias("parsed")) \
-            .select("parsed.*")
+    df = (
+        spark.read.text(args.path)
+        .select(parse_log_udf("value").alias("parsed"))
+        .select("parsed.*")
+    )
 
-    df.write \
-        .option("driver", "org.postgresql.Driver") \
-        .jdbc(
-            url="jdbc:postgresql://app-db:5432/challenge",
-            table="weblogs",
-            mode="overwrite",
-            properties={
-                "user": "postgres",
-                "password": "postgres",
-            }
-        )
+    df.write.option("driver", "org.postgresql.Driver").jdbc(
+        url="jdbc:postgresql://app-db:5432/challenge",
+        table="weblogs",
+        mode="overwrite",
+        properties={
+            "user": "postgres",
+            "password": "postgres",
+        },
+    )
 
     logging.warning("Finished writing to DB!")
+
 
 main()

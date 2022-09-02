@@ -8,7 +8,7 @@ with DAG(
     "weblog-seed",
     schedule_interval="@daily",
     start_date=datetime(2022, 8, 30),
-    catchup=False
+    catchup=False,
 ) as dag:
     cmd = (
         f"cd /app-scripts/weblog && "
@@ -25,7 +25,7 @@ with DAG(
         task_id="load",
         application="/etls/weblog-load/weblog_load.py",
         application_args=["--path", "/apache-logs"],
-        packages="org.postgresql:postgresql:42.5.0"
+        packages="org.postgresql:postgresql:42.5.0",
     )
 
     end = EmptyOperator(task_id="end")
