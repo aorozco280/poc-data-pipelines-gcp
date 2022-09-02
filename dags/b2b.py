@@ -8,7 +8,7 @@ with DAG(
     "b2b-seed",
     schedule_interval="@daily",
     start_date=datetime(2022, 8, 30),
-    catchup=False
+    catchup=False,
 ) as dag:
 
     models = [
@@ -27,16 +27,13 @@ with DAG(
         f"python seed_db.py --model {models_str}"
     )
 
-    create = BashOperator(
-        task_id="create",
-        bash_command=cmd
-    )
+    create = BashOperator(task_id="create", bash_command=cmd)
 
     seed = SparkSubmitOperator(
         task_id="load",
         application="/etls/csv-load/csv_load.py",
         application_args=["--path", "/data", "--header", "true", "--model", models_str],
-        packages="org.postgresql:postgresql:42.5.0"
+        packages="org.postgresql:postgresql:42.5.0",
     )
 
     end = EmptyOperator(task_id="end")
