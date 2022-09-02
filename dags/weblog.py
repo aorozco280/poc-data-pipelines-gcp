@@ -11,15 +11,23 @@ with DAG(
     catchup=False
 ) as dag:
     cmd = (
-        f"pip install -r /scripts/requirements.txt && "
-        f"python /scripts/generate_traces.py"
+        f"cd /app-scripts/weblog && "
+        f"pip install -r requirements.txt && "
+        f"python generate_traces.py"
     )
 
-    traces = BashOperator(
-        task_id="traces",
-        bash_command=cmd
+    generate = BashOperator(
+        task_id="generate",
+        bash_command=cmd,
+    )
+
+    load = SparkSubmitOperator(
+        task_id="load",
+        application="/etls/weblog-load/weblog_load.py",
+        application_args=["--path", "/apache-logs"],
+        packages="org.postgresql:postgresql:42.5.0"
     )
 
     end = EmptyOperator(task_id="end")
 
-    traces >> end
+    generate >> load >> end

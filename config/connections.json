@@ -1,0 +1,11 @@
+{
+    "conn_type": "spark",
+    "login": null,
+    "password": null,
+    "host": "local",
+    "port": null,
+    "schema": null,
+    "extra": {
+        "deploy-mode": "client"
+    }
+}

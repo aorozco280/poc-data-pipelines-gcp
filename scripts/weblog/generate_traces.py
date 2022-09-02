@@ -55,7 +55,7 @@ def main():
     delay = 0.5
 
     time_str = strftime("%Y%m%d-%H%M%S")
-    with open(f"/logs/access_log_{time_str}.log", "w+") as f:
+    with open(f"/apache-logs/access_log_{time_str}.log", "w+") as f:
         batches = int(traces_to_generate / batch_size)
         for i in range(batches):
             for _ in range(batch_size):
