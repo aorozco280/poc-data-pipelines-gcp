@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 
-from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 from pyspark.sql.types import (
     IntegerType,
@@ -11,16 +10,16 @@ from pyspark.sql.types import (
     StringType,
     TimestampType,
 )
+from utils import (
+    write_postgres,
+    spark_session,
+)
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", "-p", dest="path", help="The path to the weblog data")
     return parser.parse_args()
-
-
-def spark_session():
-    return SparkSession.builder.master("local[*]").appName("weblog-load").getOrCreate()
 
 
 def parse_log(log: str):
@@ -56,7 +55,7 @@ def main():
     if not args.path or not os.path.exists(args.path):
         raise Exception(f"Error, invalid path {args.path}")
 
-    spark = spark_session()
+    spark = spark_session("weblog-load")
     schema = StructType(
         [
             StructField("log", StringType(), False),
@@ -75,15 +74,7 @@ def main():
         .select("parsed.*")
     )
 
-    df.write.option("driver", "org.postgresql.Driver").jdbc(
-        url="jdbc:postgresql://app-db:5432/challenge",
-        table="weblogs",
-        mode="overwrite",
-        properties={
-            "user": "postgres",
-            "password": "postgres",
-        },
-    )
+    write_postgres(df, "weblogs")
 
     logging.warning("Finished writing to DB!")
 

@@ -1,11 +1,10 @@
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.operators.bash import BashOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 
 with DAG(
-    "ip2geo-seed",
+    "ip2geo",
     schedule_interval="@daily",
     start_date=datetime(2022, 8, 30),
     catchup=False,
@@ -23,8 +22,7 @@ with DAG(
         application="/etls/csv-load/csv_load.py",
         application_args=["--path", "/data", "--header", "true", "--model", "ip2geo"],
         packages="org.postgresql:postgresql:42.5.0",
+        py_files="/etls/utils.py",
     )
 
-    end = EmptyOperator(task_id="end")
-
-    create >> seed >> end
+    create >> seed

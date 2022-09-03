@@ -2,7 +2,10 @@ import argparse
 import logging
 import os
 
-from pyspark.sql import SparkSession
+from utils import (
+    write_postgres,
+    spark_session,
+)
 
 
 def parse_args():
@@ -15,17 +18,13 @@ def parse_args():
     return parser.parse_args()
 
 
-def spark_session():
-    return SparkSession.builder.master("local[*]").appName("csv-load").getOrCreate()
-
-
 def main():
     args = parse_args()
 
     if not args.path or not os.path.exists(args.path) or not args.model:
         raise Exception(f"Error, invalid args {args.path}, {args.model}")
 
-    spark = spark_session()
+    spark = spark_session("csv-load")
 
     reader = spark.read
 
@@ -35,17 +34,9 @@ def main():
     for model in args.model.split(","):
         logging.warning(f"Sinking model {model}")
 
-        reader.csv(f"{args.path}/{model}.csv").write.option(
-            "driver", "org.postgresql.Driver"
-        ).jdbc(
-            url="jdbc:postgresql://app-db:5432/challenge",
-            table=f'"{model}"',
-            mode="overwrite",
-            properties={
-                "user": "postgres",
-                "password": "postgres",
-            },
-        )
+        df = reader.csv(f"{args.path}/{model}.csv")
+
+        write_postgres(df, model)
 
     logging.warning("Finished writing to DB!")
 
