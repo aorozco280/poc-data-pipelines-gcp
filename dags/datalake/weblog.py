@@ -1,11 +1,10 @@
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.operators.bash import BashOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 
 with DAG(
-    "weblog-seed",
+    "weblog",
     schedule_interval="@daily",
     start_date=datetime(2022, 8, 30),
     catchup=False,
@@ -26,8 +25,7 @@ with DAG(
         application="/etls/weblog-load/weblog_load.py",
         application_args=["--path", "/apache-logs"],
         packages="org.postgresql:postgresql:42.5.0",
+        py_files="/etls/utils.py",
     )
 
-    end = EmptyOperator(task_id="end")
-
-    generate >> load >> end
+    generate >> load

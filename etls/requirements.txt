@@ -1,4 +1,0 @@
-apachelogs==0.6.0
-pyyaml==6.0
-ua-parser==0.16.1
-user-agents==2.2.0
