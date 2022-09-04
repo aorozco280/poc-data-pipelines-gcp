@@ -27,7 +27,11 @@ with DAG(
         f"python seed_db.py --model {models_str}"
     )
 
+    cmd2 = "cd /app-scripts/orders && " f"python create_orders.py --orders 2400"
+
     create = BashOperator(task_id="create", bash_command=cmd)
+
+    orders = BashOperator(task_id="populate-orders", bash_command=cmd2)
 
     seed = SparkSubmitOperator(
         task_id="load",
@@ -37,4 +41,4 @@ with DAG(
         py_files="/etls/utils.py",
     )
 
-    create >> seed
+    create >> orders >> seed

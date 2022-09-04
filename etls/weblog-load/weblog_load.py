@@ -5,6 +5,7 @@ import os
 from pyspark.sql.functions import udf
 from pyspark.sql.types import (
     IntegerType,
+    LongType,
     StructType,
     StructField,
     StringType,
@@ -63,7 +64,7 @@ def main():
         [
             StructField("log", StringType(), False),
             StructField("host", StringType(), False),
-            StructField("ipnumber", IntegerType(), False),
+            StructField("ipnumber", LongType(), False),
             StructField("path", StringType(), False),
             StructField("user", StringType(), True),
             StructField("date_time", TimestampType(), False),
