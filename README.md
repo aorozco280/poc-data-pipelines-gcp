@@ -95,7 +95,7 @@ List of sources:
 
 The corresponding ERD outlines the relationship between the data sources.
 
-![data model](erd.png)
+![data model](docs/images/erd.png)
 
 ## Spin Up Environment
 
