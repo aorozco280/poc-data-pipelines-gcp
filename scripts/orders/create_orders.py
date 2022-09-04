@@ -75,7 +75,7 @@ def store_csv(orders, sales):
     sales_path = "/data/sales.csv"
 
     with open(order_path, "w") as f:
-        csv_out = csv.writer(f)
+        csv_out = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
         csv_out.writerow(
             ["id", "order_datetime", "customer_document_number", "total", "status"]
         )
@@ -83,12 +83,48 @@ def store_csv(orders, sales):
             csv_out.writerow(astuple(o))
 
     with open(sales_path, "w") as f:
-        csv_out = csv.writer(f)
+        csv_out = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
         csv_out.writerow(
             ["order_id", "product_id", "quantity", "price_per_unit", "total"]
         )
         for s in sales:
             csv_out.writerow(astuple(s))
+
+
+def create_order(order_id, current_month, orders, sales):
+    customer_id = random.choice(customer_ids)
+    # how many items in the cart
+    items = numpy.random.choice([1, 2, 3], p=[0.9, 0.09, 0.01])
+
+    total_order = 0.0
+    for _ in range(items.item()):
+        idx = random.randint(0, len(product_ids) - 1)
+        # how many pieces of the same product, more likely to buy 1,
+        # but may also buy 2 or 3
+        product_count = numpy.random.choice([1, 2, 3], p=[0.9, 0.09, 0.01])
+        product_id = product_ids[idx]
+        product_price = prices[idx]
+        total_sale = product_price * product_count
+        total_order += total_sale
+        sales.append(
+            Sale(
+                order_id,
+                product_id,
+                int(product_count),
+                f"{product_price:.2f}",
+                f"{total_sale:.2f}",
+            )
+        )
+
+    orders.append(
+        Order(
+            order_id,
+            current_month.format("YYYY-MM-DD HH:mm:ss"),
+            customer_id,
+            f"{total_order:.2f}",
+            "COMPLETED",
+        )
+    )
 
 
 def main():
@@ -105,40 +141,9 @@ def main():
 
     # One iteration for every month
     for _ in range(12):
-        # One iteration for every orders per month
         for _ in range(orders_per_month):
-            customer_id = random.choice(customer_ids)
-            items = numpy.random.choice([1, 2, 3], p=[0.9, 0.09, 0.01])
-
-            total_order = 0.0
-            for _ in range(items.item()):
-                idx = random.randint(0, len(product_ids) - 1)
-                product_count = numpy.random.choice([1, 2, 3], p=[0.9, 0.09, 0.01])
-                product_id = product_ids[idx]
-                product_price = prices[idx]
-                total_sale = product_price * product_count
-                total_order += total_sale
-                sales.append(
-                    Sale(
-                        order_id,
-                        product_id,
-                        int(product_count),
-                        f"{product_price:.2f}",
-                        f"{total_sale:.2f}",
-                    )
-                )
-
-            orders.append(
-                Order(
-                    order_id,
-                    current_month.format("YYYY-MM-DD HH:mm:ss"),
-                    customer_id,
-                    f"{total_order:.2f}",
-                    "COMPLETED",
-                )
-            )
+            create_order(order_id, current_month, orders, sales)
             order_id += 1
-
         current_month += month_delta
 
     store_csv(orders, sales)
