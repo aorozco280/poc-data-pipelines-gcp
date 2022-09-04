@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.sensors.external_task import ExternalTaskSensor
@@ -23,6 +23,7 @@ with DAG(
         packages="org.postgresql:postgresql:42.5.0",
         py_files="/etls/utils.py",
         retries=2,
+        retry_delay=timedelta(seconds=10),
     )
 
     sensor >> aggregate

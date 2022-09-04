@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import numpy
 import random
@@ -53,9 +54,8 @@ def parse_args():
 
 
 def generate_ip():
-    _, ip = numpy.random.choice(
-        USERS_TO_IPS, p=[0.3, 0.1, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1]
-    )
+    ips = [ip for _, ip in USERS_TO_IPS]
+    ip = numpy.random.choice(ips, p=[0.3, 0.1, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1])
     return ip
 
 
@@ -90,12 +90,12 @@ def main():
     args = parse_args()
     traces_to_generate = int(args.records)
     batch_size = int(args.batch)
-    delay = int(args.batch)
+    delay = float(args.delay)
 
     time_str = strftime("%Y%m%d-%H%M%S")
     with open(f"/apache-logs/access_log_{time_str}.log", "w+") as f:
         batches = int(traces_to_generate / batch_size)
-        for i in range(batches):
+        for _ in range(batches):
             for _ in range(batch_size):
                 trace = generate_trace()
                 f.write(trace)

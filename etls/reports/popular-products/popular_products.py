@@ -41,28 +41,31 @@ def main():
         read_postgres(spark, t).createOrReplaceTempView(t)
 
     query = f"""
-    SELECT p.id
-    FROM sales s
-    INNER JOIN `order` o ON s.order_id = o.id
-    INNER JOIN customer c ON o.customer_document_number = c.document_number
-    INNER JOIN product p ON s.product_id = p.id
-    WHERE c.country = (
-        -- Country with most searches
-        SELECT ig.country
-        FROM (
-            SELECT DISTINCT(ipnumber) as ipnumber
-            FROM weblogs
-            GROUP BY ipnumber
-        ) w
-        INNER JOIN ip2geo ig ON w.ipnumber BETWEEN ig.ip_start AND ig.ip_end
-        -- Only users logged in
-        WHERE ig.path LIKE '%/login%'
+    WITH unique_logins AS (
+        SELECT ipnumber
+        FROM weblogs
+        WHERE `path` LIKE '%login%'
         GROUP BY 1
-        ORDER BY COUNT(DISTINCT(w.user)) DESC
+    ), most_logged_country AS (
+        SELECT ig.country
+        FROM unique_logins ul
+        INNER JOIN ip2geo ig ON ul.ipnumber BETWEEN CAST(ig.ip_start AS BIGINT) AND CAST(ig.ip_end AS BIGINT)
+        GROUP BY 1
+        ORDER BY COUNT(*) DESC
         LIMIT 1
-    )
-    GROUP BY 1
-    ORDER BY COUNT(*) DESC
+    ), agg_purchases AS (
+        SELECT c.document_number, c.country, s.product_id, SUM(CAST(quantity AS INT)) as quantity
+        FROM sales s
+        INNER JOIN `order` o ON s.order_id = o.id
+        INNER JOIN customer c ON c.document_number = o.customer_document_number
+        GROUP BY 1, 2, 3
+    ) SELECT * from most_logged_country;
+
+    SELECT p.name, ap.quantity, ap.country
+    FROM agg_purchases ap
+    INNER JOIN most_logged_country mlc ON ap.country = mlc.country
+    INNER JOIN product p ON ap.product_id = p.id
+    ORDER BY 2 DESC
     LIMIT {num_products}
     """
     df = spark.sql(query)

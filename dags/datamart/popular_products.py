@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
@@ -30,10 +30,12 @@ with DAG(
     aggregate = SparkSubmitOperator(
         task_id="aggregate",
         application="/etls/reports/popular-products/popular_products.py",
-        application_args=["--num-products", "5"],
+        application_args=["--num-products", "3"],
         packages="org.postgresql:postgresql:42.5.0",
         py_files="/etls/utils.py",
+        num_executors=4,
         retries=2,
+        retry_delay=timedelta(seconds=10),
     )
 
     [sensor_weblogs, sensor_ip2geo, sensor_b2b] >> aggregate
