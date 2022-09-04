@@ -7,6 +7,7 @@ with DAG(
     "ip2geo",
     schedule_interval="@daily",
     start_date=datetime(2022, 8, 30),
+    tags=["ingestion"],
     catchup=False,
 ) as dag:
     cmd = (

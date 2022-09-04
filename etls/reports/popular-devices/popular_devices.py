@@ -2,10 +2,12 @@ import argparse
 import logging
 import os
 
+from datetime import datetime
 from pyspark.sql.functions import count
 from utils import (
     read_postgres,
     write_postgres,
+    write_csv,
     spark_session,
 )
 
@@ -41,7 +43,9 @@ def main():
         .limit(int(num_devices))
     )
 
+    now = datetime.now().strftime("%Y-%m-%d")
     write_postgres(popular_devices, "popular_devices")
+    write_csv(popular_devices, f"/reports/popular_devices/date={now}")
 
     logging.warning("Finished writing to DB!")
 

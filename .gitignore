@@ -1,11 +1,7 @@
+# Python and Pyenv related
 .python-version
-
 __pycache__
 
-venv*
-
-etls/build
-etls/dist
-etls/etls.egg-info
-
-.apache-logs
+# Generated files
+apache-logs
+reports

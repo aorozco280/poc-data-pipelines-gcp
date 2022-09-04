@@ -8,7 +8,6 @@ from os import getenv
 log = logging.getLogger(__name__)
 
 DDL_PATH = getenv("DDL_PATH") or "/ddl"
-DATA_PATH = getenv("DATA_PATH") or "/data"
 
 
 def setup_connection():
@@ -38,20 +37,6 @@ def create_table(cursor, model: str):
             cursor.execute(f"{query};")
 
 
-def load_table(cursor, model: str):
-    path = f"{DATA_PATH}/{model}.csv"
-    load_query = f"COPY \"{model}\" FROM '{path}' DELIMITER ',' CSV HEADER;"
-    cursor.execute(load_query)
-
-
-def sample_table(cursor, model: str):
-    sample_query = f'SELECT * FROM "{model}" LIMIT 2;'
-
-    cursor.execute(sample_query)
-
-    return [l for l in cursor.fetchall()]
-
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -74,9 +59,7 @@ def seed(args):
 
         for model in models:
             create_table(cursor, model)
-            # load_table(cursor, model)
-            # sample = sample_table(cursor, model)
-            # log.warning(f"Successfully created {model}. Sampled data:\n{sample}")
+            logging.warning("Created table {model}")
 
         conn.commit()
 

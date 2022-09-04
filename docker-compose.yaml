@@ -19,7 +19,8 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags
     - ./sources/data:/data
     - ./sources/ddl:/ddl
-    - ./.apache-logs:/apache-logs
+    - ./reports:/reports
+    - ./apache-logs:/apache-logs
     - ./etls:/etls
     - ./config:/config
     - ./scripts:/app-scripts

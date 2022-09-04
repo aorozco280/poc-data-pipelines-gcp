@@ -7,6 +7,7 @@ with DAG(
     "popular-devices",
     schedule_interval="@daily",
     start_date=datetime(2022, 8, 30),
+    tags=["report"],
     catchup=False,
 ) as dag:
     sensor = ExternalTaskSensor(
@@ -21,6 +22,7 @@ with DAG(
         application_args=["--num-devices", "10"],
         packages="org.postgresql:postgresql:42.5.0",
         py_files="/etls/utils.py",
+        retries=2,
     )
 
     sensor >> aggregate
