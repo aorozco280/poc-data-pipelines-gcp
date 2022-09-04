@@ -82,13 +82,13 @@ List of sources:
 
 | Source    | Located  | Generated |
 | :---      | :---     | :---      |
-| customer  | `sources/(data|ddl)/customer.csv`  | Manually   |
-| company   | `sources/(data|ddl)/company.csv`   | Manually   |
-| product   | `sources/(data|ddl)/product.csv`   | Manually   |
-| inventory | `sources/(data|ddl)/inventory.csv` | Manually   |
-| ip2geo    | `sources/(data|ddl)/ip2geo.csv`    | [Downloaded](https://lite.ip2location.com/ip2location-lite) |
-| order     | `sources/(data|ddl)/order.csv`     | [Script](scripts/orders/create_orders.py), [DAG](dags/datalake/b2b.py) |
-| sales     | `sources/(data|ddl)/sales.csv`     | [Script](scripts/orders/create_orders.py), [DAG](dags/datalake/b2b.py) |
+| customer  | `sources/(data\|ddl)/customer.csv`  | Manually   |
+| company   | `sources/(data\|ddl)/company.csv`   | Manually   |
+| product   | `sources/(data\|ddl)/product.csv`   | Manually   |
+| inventory | `sources/(data\|ddl)/inventory.csv` | Manually   |
+| ip2geo    | `sources/(data\|ddl)/ip2geo.csv`    | [Downloaded](https://lite.ip2location.com/ip2location-lite) |
+| order     | `sources/(data\|ddl)/order.csv`     | [Script](scripts/orders/create_orders.py), [DAG](dags/datalake/b2b.py) |
+| sales     | `sources/(data\|ddl)/sales.csv`     | [Script](scripts/orders/create_orders.py), [DAG](dags/datalake/b2b.py) |
 | weblog    | `apache-logs/access_log_{datetime}.log` | [Script](scripts/weblog/generate_traces.py), [DAG](dags/datalake/weblog.py) |
 
 
