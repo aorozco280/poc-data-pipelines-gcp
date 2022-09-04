@@ -32,6 +32,8 @@ def parse_log(log: str):
     ipnumber = int(ip_address(entry.remote_host))
     user_agent = parse(entry.headers_in["User-Agent"])
 
+    path = entry.request_line.split(" ")[1]
+
     ua_str = "MOBILE" if user_agent.is_mobile else "PC"
     if user_agent.device.brand:
         ua_str += f" {user_agent.device.brand}"
@@ -43,6 +45,7 @@ def parse_log(log: str):
         log,
         entry.remote_host,
         ipnumber,
+        path,
         entry.remote_user,
         entry.directives["%t"],
         ua_str,
@@ -61,6 +64,7 @@ def main():
             StructField("log", StringType(), False),
             StructField("host", StringType(), False),
             StructField("ipnumber", IntegerType(), False),
+            StructField("path", StringType(), False),
             StructField("user", StringType(), True),
             StructField("date_time", TimestampType(), False),
             StructField("device_id", StringType(), False),
