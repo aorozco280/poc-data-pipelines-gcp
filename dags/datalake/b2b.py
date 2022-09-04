@@ -27,7 +27,7 @@ with DAG(
         f"python seed_db.py --model {models_str}"
     )
 
-    cmd2 = "cd /app-scripts/orders && " f"python create_orders.py --orders 2400"
+    cmd2 = "cd /app-scripts/orders && " f"python create_orders.py --orders 4800"
 
     create = BashOperator(task_id="create", bash_command=cmd)
 

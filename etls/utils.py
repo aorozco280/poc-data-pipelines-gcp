@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession, DataFrame
+from typing import Optional
 
 # These options can be set using an airflow connection
 _JDBC_BASE_OPTIONS = {
@@ -22,8 +23,10 @@ def write_postgres(df: DataFrame, table_name: str):
     df.write.option("driver", "org.postgresql.Driver").jdbc(**options)
 
 
-def read_csv(spark_session: SparkSession, filepath: str, header: bool) -> DataFrame:
-    reader = spark_session.read
+def read_csv(
+    spark_session: SparkSession, filepath: str, header: Optional[bool] = True
+) -> DataFrame:
+    reader = spark_session.read.option("inferSchema", "true")
 
     if header:
         reader = reader.option("header", "true")
@@ -33,6 +36,13 @@ def read_csv(spark_session: SparkSession, filepath: str, header: bool) -> DataFr
 
 def write_csv(df: DataFrame, filepath: str):
     df.coalesce(1).write.mode("overwrite").option("header", "true").csv(filepath)
+
+    from pathlib import Path
+    import os
+
+    for path in Path(filepath).rglob("*.csv"):
+        os.rename(path, f"{filepath}/report.csv")
+        os.remove(f"{filepath}/_SUCCESS")
 
 
 def spark_session(app_name: str):

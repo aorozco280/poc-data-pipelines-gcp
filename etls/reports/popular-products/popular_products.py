@@ -59,7 +59,7 @@ def main():
         INNER JOIN `order` o ON s.order_id = o.id
         INNER JOIN customer c ON c.document_number = o.customer_document_number
         GROUP BY 1, 2, 3
-    ) SELECT * from most_logged_country;
+    )
 
     SELECT p.name, ap.quantity, ap.country
     FROM agg_purchases ap

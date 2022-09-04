@@ -3,6 +3,7 @@ import logging
 import os
 
 from utils import (
+    read_csv,
     write_postgres,
     spark_session,
 )
@@ -26,16 +27,9 @@ def main():
 
     spark = spark_session("csv-load")
 
-    reader = spark.read
-
-    if args.header and args.header == "true":
-        reader = reader.option("header", "true")
-
     for model in args.model.split(","):
-        logging.warning(f"Sinking model {model}")
-
-        df = reader.csv(f"{args.path}/{model}.csv")
-
+        logging.warning(f"Loading model {model}")
+        df = read_csv(spark, f"{args.path}/{model}.csv")
         write_postgres(df, model)
 
     logging.warning("Finished writing to DB!")

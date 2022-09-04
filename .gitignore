@@ -5,3 +5,5 @@ __pycache__
 # Generated files
 apache-logs
 reports
+order.csv
+sales.csv
