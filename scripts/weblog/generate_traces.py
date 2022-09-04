@@ -31,24 +31,10 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--num-records",
-        "-m",
+        "-n",
         dest="records",
         help="How many records to create",
         default="5000",
-    )
-    parser.add_argument(
-        "--delay",
-        "-d",
-        dest="delay",
-        help="Delay between traces in (float) seconds",
-        default="0.1",
-    )
-    parser.add_argument(
-        "--batch-size",
-        "-b",
-        dest="batch",
-        help="Size of every batch of traces",
-        default="50",
     )
     return parser.parse_args()
 
@@ -89,17 +75,12 @@ def generate_trace():
 def main():
     args = parse_args()
     traces_to_generate = int(args.records)
-    batch_size = int(args.batch)
-    delay = float(args.delay)
 
     time_str = strftime("%Y%m%d-%H%M%S")
     with open(f"/apache-logs/access_log_{time_str}.log", "w+") as f:
-        batches = int(traces_to_generate / batch_size)
-        for _ in range(batches):
-            for _ in range(batch_size):
-                trace = generate_trace()
-                f.write(trace)
-            sleep(delay)
+        for _ in range(traces_to_generate):
+            trace = generate_trace()
+            f.write(trace)
 
 
 if __name__ == "__main__":

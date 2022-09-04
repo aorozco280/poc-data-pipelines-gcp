@@ -2,7 +2,7 @@
 
 > Proof of concept of a SQL ETL system, corresponding to the Toptal challenge.
 
-## Index
+## Table of Content
 
 <details>
   <summary>Table Of Content</summary>
@@ -12,6 +12,8 @@
 - [Components](#components)
 - [Data sources](#data-sources)
 - [Spin up environment](#spin-up-environment)
+- [Workflow breakdown](#workflow-breakdown)
+- [Scripts](#scripts)
 - [Limitations](#limitations)
 - [Future work](#future-work)
 - [Contact](#contact)
@@ -39,7 +41,7 @@ brew install docker-compose
 
 ### 3. Postgres (Optional)
 
-This application stores models (datalake) and reports (datamart) in a Postgres database. The app-db exposes port `5432` so you can query away through `psql`. To install it, run:
+This application stores models (datalake) and reports (datamart) in a Postgres database. The `app-db` exposes port `5432` so you can query away through `psql`. To install it, run:
 
 ```bash
 brew install postgresql
@@ -91,6 +93,9 @@ List of sources:
 | sales     | `sources/(data\|ddl)/sales.csv`     | [Script](scripts/orders/create_orders.py), [DAG](dags/datalake/b2b.py) |
 | weblog    | `apache-logs/access_log_{datetime}.log` | [Script](scripts/weblog/generate_traces.py), [DAG](dags/datalake/weblog.py) |
 
+The corresponding ERD outlines the relationship between the data sources.
+
+![data model](erd.png)
 
 ## Spin Up Environment
 
@@ -160,7 +165,17 @@ All workflows are configured to wait for their upstream dependencies using an ex
 
 Once upstream DAGs succeed, the report generation etl will start.
 
-`Ingestion` DAGs load data to the datalake (emulated by `app-db`), whereas `Report` ones aggregate those data, and produce the desired report in both CSV, under `reports/<name_of_the_report>/date=<execution_date>/report.csv`, and a table on the datamart (again, emulated by `app-db`).
+`Ingestion` DAGs load data to the datalake (emulated by `app-db`), and `Report` ones aggregate those data, producing the desired report in both CSV, under `reports/<name_of_the_report>/date=<execution_date>/report.csv`, and a table on the datamart (again, emulated by `app-db`).
+
+## Scripts
+
+The following table outlines the scripts this solution uses.
+
+| Script           | Description  |  Arguments |
+| :---             | :---         | :---       |
+| [create_orders.py](scripts/orders/create_orders.py) | Generates N orders and sales and stores the result in the corresponding CSV files | `-o ORDERS` |
+| [seed_db.py](scripts/seed-db/seed_db.py) | Creates tables using the DDLs | `-m MODELS` |
+| [generate_traces.py](scripts/weblog/generate_traces.py) | Generates N entries on a single logfile using the combined format | `-n NUM_RECORDS` |
 
 ## Limitations
 

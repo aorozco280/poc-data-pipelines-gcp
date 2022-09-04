@@ -13,7 +13,7 @@ with DAG(
     cmd = (
         f"cd /app-scripts/weblog && "
         f"pip install -r requirements.txt && "
-        f"python generate_traces.py --batch-size 100 --num-records 50000 --delay 0.02"
+        f"python generate_traces.py -n 50000"
     )
 
     generate = BashOperator(
