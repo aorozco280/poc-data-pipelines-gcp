@@ -1,6 +1,6 @@
 # SQL ETL Challenge - Aldo Orozco
 
-> Proof of concept of a SQL ETL system, corresponding to the Toptal challenge.
+> Proof of concept of a SQL ETL system
 
 ## Table of Content
 
